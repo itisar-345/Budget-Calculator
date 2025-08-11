@@ -77,7 +77,7 @@ export const VolatilityChart: React.FC<VolatilityChartProps> = ({ data }) => {
           },
           label: function(context: any) {
             return [
-              `Average Monthly: $${context.parsed.x.toLocaleString()}`,
+              `Average Monthly: ₹${context.parsed.x.toLocaleString()}`,
               `Volatility Index: ${context.parsed.y.toFixed(1)}%`
             ];
           }
@@ -90,7 +90,7 @@ export const VolatilityChart: React.FC<VolatilityChartProps> = ({ data }) => {
         position: 'bottom' as const,
         title: {
           display: true,
-          text: 'Average Monthly Spending ($)',
+          text: 'Average Monthly Spending (₹)',
           color: 'hsl(var(--foreground))',
         },
         grid: {
@@ -99,7 +99,7 @@ export const VolatilityChart: React.FC<VolatilityChartProps> = ({ data }) => {
         ticks: {
           color: 'hsl(var(--muted-foreground))',
           callback: function(value: any) {
-            return '$' + value.toLocaleString();
+            return '₹' + value.toLocaleString();
           }
         },
       },

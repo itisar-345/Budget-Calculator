@@ -92,7 +92,7 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({ data }) => {
         borderWidth: 1,
         callbacks: {
           label: function(context: any) {
-            return `${context.dataset.label}: $${context.parsed.y.toLocaleString()}`;
+            return `${context.dataset.label}: ₹${context.parsed.y.toLocaleString()}`;
           }
         },
       },
@@ -120,7 +120,7 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({ data }) => {
         ticks: {
           color: 'hsl(var(--muted-foreground))',
           callback: function(value: any) {
-            return '$' + value.toLocaleString();
+            return '₹' + value.toLocaleString();
           }
         },
       },

@@ -1,5 +1,5 @@
 import React from 'react';
-import { DollarSign, TrendingUp, TrendingDown, Target } from 'lucide-react';
+import { IndianRupee, TrendingUp, TrendingDown, Target } from 'lucide-react';
 import { BudgetAnalytics } from '../../types/budget';
 import { formatCurrency, formatPercentage } from '../../lib/budgetCalculations';
 import { MetricCard } from './MetricCard';
@@ -25,7 +25,7 @@ export const QuickOverview: React.FC<QuickOverviewProps> = ({ analytics }) => {
           title="Monthly Income"
           value={formatCurrency(analytics.totalIncome)}
           subtitle="Total monthly income"
-          icon={DollarSign}
+          icon={IndianRupee}
           color="success"
         />
         

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calculator, DollarSign, TrendingUp, Settings, Download, Upload } from 'lucide-react';
+import { Calculator, IndianRupee, TrendingUp, Settings, Download, Upload } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { useToast } from '../hooks/use-toast';
@@ -121,7 +121,7 @@ const Index = () => {
               Dashboard
             </TabsTrigger>
             <TabsTrigger value="income" className="gap-2">
-              <DollarSign className="h-4 w-4" />
+              <IndianRupee className="h-4 w-4" />
               Income
             </TabsTrigger>
             <TabsTrigger value="expenses" className="gap-2">
@@ -174,7 +174,7 @@ const Index = () => {
                           </div>
                           <div className="text-right">
                             <div className="font-semibold text-success">
-                              ${income.amount.toLocaleString()}
+                              ₹{income.amount.toLocaleString()}
                             </div>
                           </div>
                         </div>
@@ -222,7 +222,7 @@ const Index = () => {
                           </div>
                           <div className="text-right">
                             <div className="font-semibold text-destructive">
-                              ${expense.budget.toLocaleString()}
+                              ₹{expense.budget.toLocaleString()}
                             </div>
                           </div>
                         </div>

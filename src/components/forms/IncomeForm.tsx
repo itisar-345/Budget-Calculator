@@ -79,7 +79,7 @@ export const IncomeForm: React.FC<IncomeFormProps> = ({ onAddIncome }) => {
                 step="0.01"
                 value={formData.amount}
                 onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value }))}
-                placeholder="0.00"
+                placeholder="₹0.00"
                 required
               />
             </div>

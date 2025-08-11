@@ -79,7 +79,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ onAddExpense }) => {
                 step="0.01"
                 value={formData.budget}
                 onChange={(e) => setFormData(prev => ({ ...prev, budget: e.target.value }))}
-                placeholder="0.00"
+                placeholder="₹0.00"
                 required
               />
             </div>

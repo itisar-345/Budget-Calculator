@@ -150,9 +150,9 @@ export class BudgetCalculator {
   }
 }
 
-// Utility functions
-export const formatCurrency = (amount: number, currency = 'USD'): string => {
-  return new Intl.NumberFormat('en-US', {
+// Utility functions - Updated to use INR
+export const formatCurrency = (amount: number, currency = 'INR'): string => {
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: currency,
     minimumFractionDigits: 0,

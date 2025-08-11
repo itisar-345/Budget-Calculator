@@ -1,5 +1,5 @@
 import React from 'react';
-import { DollarSign, TrendingUp, TrendingDown, Target, Shield, Clock } from 'lucide-react';
+import { IndianRupee, TrendingUp, TrendingDown, Target, Shield, Clock } from 'lucide-react';
 import { BudgetAnalytics } from '../../types/budget';
 import { formatCurrency, formatPercentage } from '../../lib/budgetCalculations';
 import { MetricCard } from './MetricCard';
@@ -28,10 +28,11 @@ export const FinancialDashboard: React.FC<FinancialDashboardProps> = ({ analytic
       {/* Key Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <MetricCard
+          key="monthly-income-inr"
           title="Monthly Income"
           value={formatCurrency(analytics.totalIncome)}
           subtitle="Total monthly income from all sources"
-          icon={DollarSign}
+          icon={IndianRupee}
           color="success"
         />
         

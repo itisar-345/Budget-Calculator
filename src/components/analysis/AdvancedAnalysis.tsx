@@ -134,15 +134,13 @@ export const AdvancedAnalysis: React.FC<AdvancedAnalysisProps> = ({ analytics, d
           color={analytics.sustainabilityMonths >= 6 ? 'success' : analytics.sustainabilityMonths >= 3 ? 'warning' : 'destructive'}
         />
         
-        {analytics.debtBurnRate && (
-          <MetricCard
-            title="Debt Burn Rate"
-            value={`${analytics.debtBurnRate.toFixed(1)} months`}
-            subtitle="Time to clear all debt"
-            icon={AlertTriangle}
-            color={analytics.debtBurnRate <= 24 ? 'success' : analytics.debtBurnRate <= 60 ? 'warning' : 'destructive'}
-          />
-        )}
+        <MetricCard
+          title="Debt Burn Rate"
+          value={analytics.debtBurnRate > 0 ? `${analytics.debtBurnRate.toFixed(1)} months` : 'No debt'}
+          subtitle="Time to clear all debt"
+          icon={AlertTriangle}
+          color={analytics.debtBurnRate === 0 ? 'success' : analytics.debtBurnRate <= 24 ? 'success' : analytics.debtBurnRate <= 60 ? 'warning' : 'destructive'}
+        />
         
         <MetricCard
           title="Income Buffer"

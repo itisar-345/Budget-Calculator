@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BudgetData, IncomeSource, ExpenseCategory, Transaction, FinancialGoal } from '../types/budget';
+import { BudgetData, IncomeSource, ExpenseCategory, Transaction, MonthlySavings } from '../types/budget';
 
 const STORAGE_KEY = 'budget-calculator-data';
 
@@ -7,11 +7,11 @@ const defaultBudgetData: BudgetData = {
   incomes: [],
   expenses: [],
   transactions: [],
-  goals: [],
   monthlyHistory: [],
+  monthlySavings: [],
   settings: {
-    currency: 'USD',
-    inflationRate: 3.5,
+    currency: 'INR',
+    inflationRate: 6.0,
     emergencyFundTarget: 6,
   },
 };
@@ -111,32 +111,25 @@ export const useBudgetData = () => {
     }));
   };
 
-  const addGoal = (goal: Omit<FinancialGoal, 'id'>) => {
-    const newGoal: FinancialGoal = {
-      ...goal,
+  const addSavings = (savings: Omit<MonthlySavings, 'id'>) => {
+    const newSavings: MonthlySavings = {
+      ...savings,
       id: crypto.randomUUID(),
     };
     setData(prev => ({
       ...prev,
-      goals: [...prev.goals, newGoal],
+      monthlySavings: [...prev.monthlySavings, newSavings],
     }));
   };
 
-  const updateGoal = (id: string, updates: Partial<FinancialGoal>) => {
+  const deleteSavings = (id: string) => {
     setData(prev => ({
       ...prev,
-      goals: prev.goals.map(goal =>
-        goal.id === id ? { ...goal, ...updates } : goal
-      ),
+      monthlySavings: prev.monthlySavings.filter(savings => savings.id !== id),
     }));
   };
 
-  const deleteGoal = (id: string) => {
-    setData(prev => ({
-      ...prev,
-      goals: prev.goals.filter(goal => goal.id !== id),
-    }));
-  };
+
 
   const exportData = () => {
     const dataStr = JSON.stringify(data, null, 2);
@@ -181,9 +174,8 @@ export const useBudgetData = () => {
     updateExpense,
     deleteExpense,
     addTransaction,
-    addGoal,
-    updateGoal,
-    deleteGoal,
+    addSavings,
+    deleteSavings,
     exportData,
     importData,
     clearAllData,

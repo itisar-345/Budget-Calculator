@@ -28,7 +28,6 @@ export const FinancialDashboard: React.FC<FinancialDashboardProps> = ({ analytic
       {/* Key Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <MetricCard
-          key="monthly-income-inr"
           title="Monthly Income"
           value={formatCurrency(analytics.totalIncome)}
           subtitle="Total monthly income from all sources"
@@ -97,8 +96,8 @@ export const FinancialDashboard: React.FC<FinancialDashboardProps> = ({ analytic
 
       {/* Advanced Metrics */}
       <div className="bg-card rounded-lg p-6 shadow-card border">
-        <h3 className="text-lg font-semibold mb-4 text-foreground">Advanced Analysis</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <h3 className="text-lg font-semibold mb-4 text-foreground">Financial Health Overview</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div className="text-center p-4 bg-muted/50 rounded-lg">
             <div className="text-2xl font-bold text-accent">
               {formatPercentage(analytics.expenseVolatilityIndex)}
@@ -117,20 +116,9 @@ export const FinancialDashboard: React.FC<FinancialDashboardProps> = ({ analytic
             </div>
           </div>
           
-          {analytics.debtBurnRate && (
-            <div className="text-center p-4 bg-muted/50 rounded-lg">
-              <div className="text-2xl font-bold text-accent">
-                {analytics.debtBurnRate.toFixed(1)}
-              </div>
-              <div className="text-sm text-muted-foreground">
-                Debt Burn Rate (months)
-              </div>
-            </div>
-          )}
-          
           <div className="text-center p-4 bg-muted/50 rounded-lg">
             <div className="text-2xl font-bold text-accent">
-              {((analytics.totalIncome - analytics.breakEvenPoint) / analytics.totalIncome * 100).toFixed(1)}%
+              {analytics.totalIncome > 0 ? ((analytics.totalIncome - analytics.breakEvenPoint) / analytics.totalIncome * 100).toFixed(1) : '0.0'}%
             </div>
             <div className="text-sm text-muted-foreground">
               Income Buffer

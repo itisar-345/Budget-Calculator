@@ -47,6 +47,16 @@ All colors MUST be HSL.
     --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(210 25% 98%));
     --gradient-accent: linear-gradient(135deg, hsl(195 75% 45%), hsl(175 65% 55%));
     
+    /* Chart Colors - Vibrant */
+    --chart-1: 262 83% 58%; /* Purple */
+    --chart-2: 142 76% 36%; /* Green */
+    --chart-3: 346 87% 43%; /* Red */
+    --chart-4: 221 83% 53%; /* Blue */
+    --chart-5: 32 95% 44%;  /* Orange */
+    --chart-6: 293 69% 49%; /* Magenta */
+    --chart-7: 173 58% 39%; /* Teal */
+    --chart-8: 43 74% 49%;  /* Yellow */
+    
     /* Shadows */
     --shadow-card: 0 4px 20px -2px hsl(215 25% 15% / 0.08);
     --shadow-elevated: 0 8px 30px -4px hsl(215 25% 15% / 0.12);
@@ -98,6 +108,17 @@ All colors MUST be HSL.
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
+    
+    /* Dark mode chart colors - Vibrant */
+    --chart-1: 262 83% 68%; /* Purple */
+    --chart-2: 142 76% 46%; /* Green */
+    --chart-3: 346 87% 53%; /* Red */
+    --chart-4: 221 83% 63%; /* Blue */
+    --chart-5: 32 95% 54%;  /* Orange */
+    --chart-6: 293 69% 59%; /* Magenta */
+    --chart-7: 173 58% 49%; /* Teal */
+    --chart-8: 43 74% 59%;  /* Yellow */
+    
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;

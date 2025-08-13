@@ -12,8 +12,7 @@ interface ExpenseFormProps {
 }
 
 const expenseColors = [
-  '#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', 
-  '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'
+  '#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'
 ];
 
 export const ExpenseForm: React.FC<ExpenseFormProps> = ({ onAddExpense }) => {
@@ -23,6 +22,8 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ onAddExpense }) => {
     budget: '',
     frequency: 'monthly',
     color: expenseColors[0],
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -37,6 +38,8 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ onAddExpense }) => {
       spent: 0,
       frequency: formData.frequency as any,
       color: formData.color,
+      startDate: formData.startDate,
+      endDate: formData.endDate || undefined,
     });
 
     setFormData({
@@ -45,6 +48,8 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ onAddExpense }) => {
       budget: '',
       frequency: 'monthly',
       color: expenseColors[Math.floor(Math.random() * expenseColors.length)],
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: '',
     });
   };
 
@@ -71,7 +76,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ onAddExpense }) => {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="expense-budget">Monthly Budget</Label>
+              <Label htmlFor="expense-budget">Budget Amount</Label>
               <Input
                 id="expense-budget"
                 type="number"
@@ -114,6 +119,38 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ onAddExpense }) => {
                   <SelectItem value="one-time">One-time</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="expense-start">Start Date</Label>
+              <Input
+                id="expense-start"
+                type="date"
+                value={formData.startDate}
+                onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
+              />
+              <p className="text-xs text-muted-foreground">
+                {formData.frequency === 'weekly' && 'Weekly expenses will occur every 7 days from this date'}
+                {formData.frequency === 'biweekly' && 'Bi-weekly expenses will occur every 14 days from this date'}
+                {formData.frequency === 'monthly' && 'Monthly expenses will occur on this day each month'}
+                {formData.frequency === 'yearly' && 'Yearly expenses will occur on this date each year'}
+                {formData.frequency === 'one-time' && 'One-time expense will occur only on this date'}
+              </p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="expense-end">End Date (Optional)</Label>
+              <Input
+                id="expense-end"
+                type="date"
+                value={formData.endDate}
+                onChange={(e) => setFormData(prev => ({ ...prev, endDate: e.target.value }))}
+              />
+              <p className="text-xs text-muted-foreground">
+                Leave empty for ongoing expenses, or set when this expense stops
+              </p>
             </div>
           </div>
 

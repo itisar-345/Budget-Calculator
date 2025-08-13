@@ -10,7 +10,7 @@ export const SavingsGauge: React.FC<SavingsGaugeProps> = ({
   savingsRate, 
   target = 20 
 }) => {
-  const normalizedRate = Math.max(0, Math.min(100, savingsRate));
+  const normalizedRate = Math.max(0, Math.min(100, Math.abs(savingsRate)));
   const normalizedTarget = Math.max(0, Math.min(100, target));
   
   const circumference = 2 * Math.PI * 45;
@@ -19,9 +19,10 @@ export const SavingsGauge: React.FC<SavingsGaugeProps> = ({
   const targetOffset = circumference - (normalizedTarget / 100) * circumference;
 
   const getColor = (rate: number) => {
-    if (rate >= 20) return 'hsl(var(--success))';
-    if (rate >= 10) return 'hsl(var(--warning))';
-    return 'hsl(var(--destructive))';
+    if (rate < 0) return '#DC2626'; // Red for negative savings
+    if (rate >= 20) return '#10B981';
+    if (rate >= 10) return '#F59E0B';
+    return '#EF4444';
   };
 
   return (
@@ -56,7 +57,7 @@ export const SavingsGauge: React.FC<SavingsGaugeProps> = ({
           cy="50"
           r="45"
           fill="none"
-          stroke={getColor(normalizedRate)}
+          stroke={getColor(savingsRate)}
           strokeWidth="8"
           strokeDasharray={strokeDasharray}
           strokeDashoffset={strokeDashoffset}

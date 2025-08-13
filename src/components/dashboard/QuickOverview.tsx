@@ -97,7 +97,7 @@ export const QuickOverview: React.FC<QuickOverviewProps> = ({ analytics }) => {
           
           <div className="text-center p-4 bg-muted/50 rounded-lg">
             <div className="text-2xl font-bold text-accent">
-              {((analytics.totalIncome - analytics.breakEvenPoint) / analytics.totalIncome * 100).toFixed(1)}%
+              {analytics.totalIncome > 0 ? ((analytics.totalIncome - analytics.breakEvenPoint) / analytics.totalIncome * 100).toFixed(1) : '0.0'}%
             </div>
             <div className="text-sm text-muted-foreground">
               Income Buffer

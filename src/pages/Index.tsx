@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calculator, IndianRupee, TrendingUp, Settings, Download, Upload } from 'lucide-react';
+import { Calculator, IndianRupee, TrendingUp, Settings, Download, Upload, Trash2, PiggyBank } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { useToast } from '../hooks/use-toast';
@@ -10,6 +10,8 @@ import { QuickOverview } from '../components/dashboard/QuickOverview';
 import { AdvancedAnalysis } from '../components/analysis/AdvancedAnalysis';
 import { IncomeForm } from '../components/forms/IncomeForm';
 import { ExpenseForm } from '../components/forms/ExpenseForm';
+import { SavingsForm } from '../components/forms/SavingsForm';
+
 
 const Index = () => {
   const { toast } = useToast();
@@ -17,7 +19,11 @@ const Index = () => {
     data,
     loading,
     addIncome,
+    deleteIncome,
     addExpense,
+    deleteExpense,
+    addSavings,
+    deleteSavings,
     exportData,
     importData,
   } = useBudgetData();
@@ -115,7 +121,7 @@ const Index = () => {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <Tabs defaultValue="dashboard" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-fit">
+          <TabsList className="grid w-full grid-cols-5 lg:w-fit">
             <TabsTrigger value="dashboard" className="gap-2">
               <TrendingUp className="h-4 w-4" />
               Dashboard
@@ -127,6 +133,10 @@ const Index = () => {
             <TabsTrigger value="expenses" className="gap-2">
               <Settings className="h-4 w-4" />
               Expenses
+            </TabsTrigger>
+            <TabsTrigger value="savings" className="gap-2">
+              <PiggyBank className="h-4 w-4" />
+              Savings
             </TabsTrigger>
             <TabsTrigger value="analysis" className="gap-2">
               <Calculator className="h-4 w-4" />
@@ -172,10 +182,18 @@ const Index = () => {
                               {income.category} • {income.frequency}
                             </p>
                           </div>
-                          <div className="text-right">
+                          <div className="flex items-center gap-2">
                             <div className="font-semibold text-success">
                               ₹{income.amount.toLocaleString()}
                             </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => deleteIncome(income.id)}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
                           </div>
                         </div>
                       </div>
@@ -220,10 +238,72 @@ const Index = () => {
                               </p>
                             </div>
                           </div>
-                          <div className="text-right">
+                          <div className="flex items-center gap-2">
                             <div className="font-semibold text-destructive">
                               ₹{expense.budget.toLocaleString()}
                             </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => deleteExpense(expense.id)}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="savings" className="space-y-6">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-foreground mb-2">Monthly Savings</h2>
+              <p className="text-muted-foreground">
+                Track your monthly savings to analyze your financial progress
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <SavingsForm onAddSavings={addSavings} />
+              
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Savings History</h3>
+                {data.monthlySavings.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No savings recorded yet. Add your first monthly savings record.
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {data.monthlySavings
+                      .sort((a, b) => new Date(b.month).getTime() - new Date(a.month).getTime())
+                      .map((savings) => (
+                      <div key={savings.id} className="p-4 bg-card rounded-lg border shadow-sm">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="font-medium">
+                              {new Date(savings.month + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                            </h4>
+                            {savings.description && (
+                              <p className="text-sm text-muted-foreground">{savings.description}</p>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="font-semibold text-success">
+                              ₹{savings.amount.toLocaleString()}
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => deleteSavings(savings.id)}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
                           </div>
                         </div>
                       </div>

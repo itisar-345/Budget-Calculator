@@ -41,8 +41,8 @@ export const VolatilityChart: React.FC<VolatilityChartProps> = ({ data }) => {
           label: expense.name,
           color: expense.color,
         })),
-        backgroundColor: data.expenses.map(expense => expense.color + '80'),
-        borderColor: data.expenses.map(expense => expense.color),
+        backgroundColor: ['#8B5CF6', '#10B981', '#EF4444', '#3B82F6', '#F59E0B', '#EC4899', '#14B8A6', '#F97316'],
+        borderColor: ['#7C3AED', '#059669', '#DC2626', '#2563EB', '#D97706', '#DB2777', '#0F766E', '#EA580C'],
         pointRadius: 8,
         pointHoverRadius: 10,
       },
@@ -66,11 +66,13 @@ export const VolatilityChart: React.FC<VolatilityChartProps> = ({ data }) => {
         },
       },
       tooltip: {
-        backgroundColor: 'hsl(var(--card))',
-        titleColor: 'hsl(var(--foreground))',
-        bodyColor: 'hsl(var(--foreground))',
-        borderColor: 'hsl(var(--border))',
-        borderWidth: 1,
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        titleColor: '#000000',
+        bodyColor: '#1F2937',
+        borderColor: '#000000',
+        borderWidth: 2,
+        cornerRadius: 8,
+        displayColors: true,
         callbacks: {
           title: function(context: any) {
             return context[0].raw.label;

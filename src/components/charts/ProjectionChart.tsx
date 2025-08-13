@@ -39,24 +39,24 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({ data }) => {
       {
         label: 'Income',
         data: projections.map(p => p.income),
-        borderColor: 'hsl(var(--success))',
-        backgroundColor: 'hsl(var(--success) / 0.1)',
+        borderColor: '#10B981',
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
         fill: false,
         tension: 0.4,
       },
       {
         label: 'Expenses (Inflation Adjusted)',
         data: projections.map(p => p.expenses),
-        borderColor: 'hsl(var(--destructive))',
-        backgroundColor: 'hsl(var(--destructive) / 0.1)',
+        borderColor: '#EF4444',
+        backgroundColor: 'rgba(239, 68, 68, 0.1)',
         fill: false,
         tension: 0.4,
       },
       {
         label: 'Net Income',
         data: projections.map(p => p.surplus),
-        borderColor: 'hsl(var(--accent))',
-        backgroundColor: 'hsl(var(--accent) / 0.2)',
+        borderColor: '#8B5CF6',
+        backgroundColor: 'rgba(139, 92, 246, 0.2)',
         fill: 'origin',
         tension: 0.4,
       },
@@ -75,7 +75,7 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({ data }) => {
       },
       title: {
         display: true,
-        text: '12-Month Financial Projection (Inflation Adjusted)',
+        text: `${new Date().getFullYear()} Financial Projection (Jan-Dec)`,
         color: 'hsl(var(--foreground))',
         font: {
           size: 16,
@@ -85,11 +85,13 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({ data }) => {
       tooltip: {
         mode: 'index' as const,
         intersect: false,
-        backgroundColor: 'hsl(var(--card))',
-        titleColor: 'hsl(var(--foreground))',
-        bodyColor: 'hsl(var(--foreground))',
-        borderColor: 'hsl(var(--border))',
-        borderWidth: 1,
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        titleColor: '#000000',
+        bodyColor: '#1F2937',
+        borderColor: '#000000',
+        borderWidth: 2,
+        cornerRadius: 8,
+        displayColors: true,
         callbacks: {
           label: function(context: any) {
             return `${context.dataset.label}: ₹${context.parsed.y.toLocaleString()}`;

@@ -10,35 +10,66 @@ export class BudgetCalculator {
   // Convert any frequency to monthly amount
   public toMonthlyAmount(amount: number, frequency: string): number {
     switch (frequency) {
-      case 'weekly': return amount * 4.33;
-      case 'biweekly': return amount * 2.17;
+      case 'weekly': return amount * 4.33; // 52 weeks / 12 months
+      case 'biweekly': return amount * 2.17; // 26 biweeks / 12 months
       case 'yearly': return amount / 12;
-      case 'one-time': return amount;
+      case 'one-time': return 0; // One-time amounts don't contribute to monthly recurring
       default: return amount; // monthly
     }
   }
 
-  // Calculate total monthly income
+  // Calculate total monthly income (considering dates)
   getTotalMonthlyIncome(): number {
-    return this.data.incomes.reduce((total, income) => {
-      return total + this.toMonthlyAmount(income.amount, income.frequency);
-    }, 0);
+    const currentDate = new Date();
+    return this.data.incomes
+      .filter(income => {
+        // Handle incomes without dates (legacy data)
+        if (!income.startDate) return income.isRecurring || income.frequency !== 'one-time';
+        
+        const startDate = new Date(income.startDate);
+        const endDate = income.endDate ? new Date(income.endDate) : null;
+        const isActive = startDate <= currentDate && (!endDate || endDate >= currentDate);
+        return isActive && (income.isRecurring || income.frequency !== 'one-time');
+      })
+      .reduce((total, income) => {
+        return total + this.toMonthlyAmount(income.amount, income.frequency);
+      }, 0);
   }
 
-  // Calculate total monthly expenses
+  // Calculate total monthly expenses (considering dates)
   getTotalMonthlyExpenses(): number {
-    return this.data.expenses.reduce((total, expense) => {
-      return total + this.toMonthlyAmount(expense.budget, expense.frequency);
-    }, 0);
+    const currentDate = new Date();
+    return this.data.expenses
+      .filter(expense => {
+        // Handle expenses without dates (legacy data)
+        if (!expense.startDate) return true;
+        
+        const startDate = new Date(expense.startDate);
+        const endDate = expense.endDate ? new Date(expense.endDate) : null;
+        return startDate <= currentDate && (!endDate || endDate >= currentDate);
+      })
+      .reduce((total, expense) => {
+        return total + this.toMonthlyAmount(expense.budget, expense.frequency);
+      }, 0);
   }
 
-  // Calculate break-even point
+  // Calculate break-even point (considering active expenses only)
   getBreakEvenPoint(): number {
-    const fixedExpenses = this.data.expenses
+    const currentDate = new Date();
+    const activeExpenses = this.data.expenses.filter(expense => {
+      // Handle expenses without dates (legacy data)
+      if (!expense.startDate) return true;
+      
+      const startDate = new Date(expense.startDate);
+      const endDate = expense.endDate ? new Date(expense.endDate) : null;
+      return startDate <= currentDate && (!endDate || endDate >= currentDate);
+    });
+
+    const fixedExpenses = activeExpenses
       .filter(exp => exp.type === 'fixed')
       .reduce((total, exp) => total + this.toMonthlyAmount(exp.budget, exp.frequency), 0);
 
-    const avgVariableExpenses = this.data.expenses
+    const avgVariableExpenses = activeExpenses
       .filter(exp => exp.type === 'variable')
       .reduce((total, exp) => total + this.toMonthlyAmount(exp.budget, exp.frequency), 0);
 
@@ -49,13 +80,21 @@ export class BudgetCalculator {
   getExpenseVolatilityIndex(): Record<string, number> {
     const volatilityIndex: Record<string, number> = {};
 
+    if (this.data.monthlyHistory.length < 2) {
+      // If no historical data, return low volatility for fixed expenses, higher for variable
+      this.data.expenses.forEach(category => {
+        volatilityIndex[category.id] = category.type === 'fixed' ? 5 : category.type === 'variable' ? 25 : 40;
+      });
+      return volatilityIndex;
+    }
+
     this.data.expenses.forEach(category => {
       const monthlySpending = this.data.monthlyHistory.map(month => 
         month.categories[category.id] || 0
       );
 
       if (monthlySpending.length < 2) {
-        volatilityIndex[category.id] = 0;
+        volatilityIndex[category.id] = category.type === 'fixed' ? 5 : category.type === 'variable' ? 25 : 40;
         return;
       }
 
@@ -69,64 +108,142 @@ export class BudgetCalculator {
     return volatilityIndex;
   }
 
-  // Calculate savings sustainability (how long current savings would last with zero income)
+  // Calculate total savings from monthly records
+  getTotalSavings(): number {
+    return this.data.monthlySavings.reduce((total, savings) => total + savings.amount, 0);
+  }
+
+  // Calculate average monthly savings
+  getAverageMonthlySavings(): number {
+    if (this.data.monthlySavings.length === 0) return 0;
+    return this.getTotalSavings() / this.data.monthlySavings.length;
+  }
+
+  // Calculate savings sustainability (how long all savings + net income would last)
   getSavingsSustainability(): number {
-    const currentSavings = this.data.goals
-      .filter(goal => goal.type === 'savings')
-      .reduce((total, goal) => total + goal.currentAmount, 0);
-
+    const totalSavings = this.getTotalSavings();
+    const netIncome = this.getTotalMonthlyIncome() - this.getTotalMonthlyExpenses();
     const monthlyExpenses = this.getTotalMonthlyExpenses();
     
-    return monthlyExpenses > 0 ? currentSavings / monthlyExpenses : 0;
+    if (monthlyExpenses <= 0) return 0;
+    
+    // If net income is positive, savings last longer
+    if (netIncome > 0) {
+      return totalSavings / Math.max(monthlyExpenses - netIncome, monthlyExpenses * 0.1);
+    }
+    
+    // If net income is negative, savings deplete faster
+    return totalSavings / (monthlyExpenses + Math.abs(netIncome));
   }
 
-  // Calculate cash flow cushion
+  // Calculate cash flow cushion (emergency fund coverage)
   getCashFlowCushion(): number {
-    const liquidAssets = this.data.goals
-      .filter(goal => goal.type === 'savings')
-      .reduce((total, goal) => total + goal.currentAmount, 0);
-
-    const monthlyExpenses = this.getTotalMonthlyExpenses();
+    const totalSavings = this.getTotalSavings();
+    const essentialExpenses = this.data.expenses
+      .filter(expense => {
+        // Handle expenses without dates (legacy data)
+        if (!expense.startDate) return expense.type === 'fixed';
+        
+        const currentDate = new Date();
+        const startDate = new Date(expense.startDate);
+        const endDate = expense.endDate ? new Date(expense.endDate) : null;
+        const isActive = startDate <= currentDate && (!endDate || endDate >= currentDate);
+        return isActive && expense.type === 'fixed';
+      })
+      .reduce((total, expense) => {
+        return total + this.toMonthlyAmount(expense.budget, expense.frequency);
+      }, 0);
     
-    return monthlyExpenses > 0 ? liquidAssets / monthlyExpenses : 0;
+    return essentialExpenses > 0 ? totalSavings / essentialExpenses : 0;
   }
 
-  // Calculate debt burn rate
-  getDebtBurnRate(): number {
-    const totalDebt = this.data.goals
-      .filter(goal => goal.type === 'debt')
-      .reduce((total, goal) => total + (goal.targetAmount - goal.currentAmount), 0);
-
-    const monthlyIncome = this.getTotalMonthlyIncome();
-    const monthlyExpenses = this.getTotalMonthlyExpenses();
-    const surplus = monthlyIncome - monthlyExpenses;
-
-    if (surplus <= 0 || totalDebt <= 0) return 0;
-
-    return totalDebt / surplus;
-  }
-
-  // Calculate inflation-adjusted projections
+  // Calculate date-dependent projections starting from January
   getInflationAdjustedProjection(months: number): MonthlyData[] {
-    const inflationRate = this.data.settings.inflationRate / 100 / 12; // Monthly inflation
+    const inflationRate = this.data.settings.inflationRate / 100 / 12;
     const projections: MonthlyData[] = [];
+    let cumulativeSavings = 0;
+    const currentYear = new Date().getFullYear();
 
-    for (let i = 1; i <= months; i++) {
+    for (let i = 0; i < months; i++) {
+      const projectionDate = new Date(currentYear, i, 1);
       const inflationMultiplier = Math.pow(1 + inflationRate, i);
-      const adjustedExpenses = this.getTotalMonthlyExpenses() * inflationMultiplier;
-      const currentIncome = this.getTotalMonthlyIncome();
+      
+      // Calculate income for this specific month - only if active during this month
+      const monthlyIncome = this.data.incomes
+        .filter(income => {
+          if (!income.startDate) {
+            return income.isRecurring || income.frequency !== 'one-time';
+          }
+          
+          const startDate = new Date(income.startDate);
+          const endDate = income.endDate ? new Date(income.endDate) : null;
+          
+          // Check if income is active in this specific month
+          const monthStart = new Date(projectionDate.getFullYear(), projectionDate.getMonth(), 1);
+          const monthEnd = new Date(projectionDate.getFullYear(), projectionDate.getMonth() + 1, 0);
+          
+          const isActiveThisMonth = startDate <= monthEnd && (!endDate || endDate >= monthStart);
+          return isActiveThisMonth && (income.isRecurring || income.frequency !== 'one-time');
+        })
+        .reduce((total, income) => {
+          return total + this.toMonthlyAmount(income.amount, income.frequency);
+        }, 0);
+      
+      const monthlyExpenses = this.data.expenses
+        .filter(expense => {
+          if (!expense.startDate) {
+            return true;
+          }
+          
+          const startDate = new Date(expense.startDate);
+          const endDate = expense.endDate ? new Date(expense.endDate) : null;
+          
+          // Check if expense is active in this specific month
+          const monthStart = new Date(projectionDate.getFullYear(), projectionDate.getMonth(), 1);
+          const monthEnd = new Date(projectionDate.getFullYear(), projectionDate.getMonth() + 1, 0);
+          
+          return startDate <= monthEnd && (!endDate || endDate >= monthStart);
+        })
+        .reduce((total, expense) => {
+          return total + this.toMonthlyAmount(expense.budget, expense.frequency);
+        }, 0);
+      
+      const adjustedExpenses = monthlyExpenses * inflationMultiplier;
+      const surplus = monthlyIncome - adjustedExpenses;
+      
+      cumulativeSavings += surplus;
 
       projections.push({
-        month: new Date(Date.now() + i * 30 * 24 * 60 * 60 * 1000).toISOString().substring(0, 7),
-        income: currentIncome,
+        month: projectionDate.toISOString().substring(0, 7),
+        income: monthlyIncome,
         expenses: adjustedExpenses,
-        surplus: currentIncome - adjustedExpenses,
-        savings: Math.max(0, currentIncome - adjustedExpenses),
-        categories: {}
+        surplus,
+        savings: surplus,
+        categories: {
+          savings: cumulativeSavings
+        }
       });
     }
 
     return projections;
+  }
+
+  // Calculate stable income (recurring income sources, considering dates)
+  getStableIncome(): number {
+    const currentDate = new Date();
+    return this.data.incomes
+      .filter(income => {
+        // Handle incomes without dates (legacy data)
+        if (!income.startDate) return income.isRecurring && income.frequency !== 'one-time';
+        
+        const startDate = new Date(income.startDate);
+        const endDate = income.endDate ? new Date(income.endDate) : null;
+        const isActive = startDate <= currentDate && (!endDate || endDate >= currentDate);
+        return isActive && income.isRecurring && income.frequency !== 'one-time';
+      })
+      .reduce((total, income) => {
+        return total + this.toMonthlyAmount(income.amount, income.frequency);
+      }, 0);
   }
 
   // Generate comprehensive analytics
@@ -135,6 +252,8 @@ export class BudgetCalculator {
     const totalExpenses = this.getTotalMonthlyExpenses();
     const netIncome = totalIncome - totalExpenses;
     const savingsRate = totalIncome > 0 ? (netIncome / totalIncome) * 100 : 0;
+    const volatilityValues = Object.values(this.getExpenseVolatilityIndex());
+    const avgVolatility = volatilityValues.length > 0 ? volatilityValues.reduce((sum, val) => sum + val, 0) / volatilityValues.length : 0;
 
     return {
       totalIncome,
@@ -142,10 +261,12 @@ export class BudgetCalculator {
       netIncome,
       savingsRate,
       breakEvenPoint: this.getBreakEvenPoint(),
-      expenseVolatilityIndex: Object.values(this.getExpenseVolatilityIndex()).reduce((sum, val) => sum + val, 0) / this.data.expenses.length,
+      expenseVolatilityIndex: avgVolatility,
       cashFlowCushion: this.getCashFlowCushion(),
-      debtBurnRate: this.getDebtBurnRate(),
-      sustainabilityMonths: this.getSavingsSustainability()
+      sustainabilityMonths: this.getSavingsSustainability(),
+      stableIncome: this.getStableIncome(),
+      totalSavings: this.getTotalSavings(),
+      averageMonthlySavings: this.getAverageMonthlySavings()
     };
   }
 }

@@ -4,7 +4,7 @@ import { BudgetAnalytics, BudgetData } from '../../types/budget';
 import { formatCurrency, formatPercentage } from '../../lib/budgetCalculations';
 import { MetricCard } from '../dashboard/MetricCard';
 import { ProjectionChart } from '../charts/ProjectionChart';
-import { VolatilityChart } from '../charts/VolatilityChart';
+import { FinancialHealthRadar } from '../charts/FinancialHealthRadar';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
 interface AdvancedAnalysisProps {
@@ -134,20 +134,14 @@ export const AdvancedAnalysis: React.FC<AdvancedAnalysisProps> = ({ analytics, d
           color={analytics.sustainabilityMonths >= 6 ? 'success' : analytics.sustainabilityMonths >= 3 ? 'warning' : 'destructive'}
         />
         
-        <MetricCard
-          title="Debt Burn Rate"
-          value={analytics.debtBurnRate > 0 ? `${analytics.debtBurnRate.toFixed(1)} months` : 'No debt'}
-          subtitle="Time to clear all debt"
-          icon={AlertTriangle}
-          color={analytics.debtBurnRate === 0 ? 'success' : analytics.debtBurnRate <= 24 ? 'success' : analytics.debtBurnRate <= 60 ? 'warning' : 'destructive'}
-        />
+
         
         <MetricCard
           title="Income Buffer"
-          value={formatPercentage((analytics.totalIncome - analytics.breakEvenPoint) / analytics.totalIncome * 100)}
+          value={formatPercentage(analytics.totalIncome > 0 ? (analytics.totalIncome - analytics.breakEvenPoint) / analytics.totalIncome * 100 : 0)}
           subtitle="Income above break-even"
           icon={Calculator}
-          color={(analytics.totalIncome - analytics.breakEvenPoint) / analytics.totalIncome >= 0.2 ? 'success' : 'warning'}
+          color={analytics.totalIncome > 0 && (analytics.totalIncome - analytics.breakEvenPoint) / analytics.totalIncome >= 0.2 ? 'success' : 'warning'}
         />
         
         <MetricCard
@@ -155,6 +149,7 @@ export const AdvancedAnalysis: React.FC<AdvancedAnalysisProps> = ({ analytics, d
           value={formatCurrency(analytics.breakEvenPoint)}
           subtitle="Minimum income required"
           icon={Target}
+          color={analytics.breakEvenPoint < analytics.totalIncome ? 'success' : 'destructive'}
         />
       </div>
 
@@ -176,23 +171,15 @@ export const AdvancedAnalysis: React.FC<AdvancedAnalysisProps> = ({ analytics, d
           </CardContent>
         </Card>
 
-        {/* Expense Volatility Analysis */}
-        {data.expenses.length > 0 && (
-          <Card className="shadow-card border">
-            <CardHeader>
-              <CardTitle>Expense Volatility Analysis</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <VolatilityChart data={data} />
-              <div className="mt-4 p-4 bg-muted/50 rounded-lg">
-                <p className="text-sm text-muted-foreground">
-                  <strong>Analysis:</strong> Categories in the upper right have high spending and high volatility. 
-                  Focus on stabilizing expenses in those areas for better financial predictability.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        {/* Financial Health Radar */}
+        <Card className="shadow-card border">
+          <CardHeader>
+            <CardTitle>Financial Health Analysis</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <FinancialHealthRadar analytics={analytics} />
+          </CardContent>
+        </Card>
       </div>
 
       {/* Financial Recommendations */}
@@ -241,6 +228,8 @@ export const AdvancedAnalysis: React.FC<AdvancedAnalysisProps> = ({ analytics, d
                 </p>
               </div>
             )}
+            
+
             
             {healthScore >= 80 && (
               <div className="p-4 bg-success/10 border border-success/20 rounded-lg">

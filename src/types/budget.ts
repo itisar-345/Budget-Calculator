@@ -18,6 +18,15 @@ export interface ExpenseCategory {
   frequency: 'monthly' | 'weekly' | 'biweekly' | 'yearly' | 'one-time';
   color: string;
   subcategories?: string[];
+  startDate: string;
+  endDate?: string;
+}
+
+export interface MonthlySavings {
+  id: string;
+  month: string;
+  amount: number;
+  description?: string;
 }
 
 export interface Transaction {
@@ -47,8 +56,10 @@ export interface BudgetAnalytics {
   breakEvenPoint: number;
   expenseVolatilityIndex: number;
   cashFlowCushion: number;
-  debtBurnRate?: number;
   sustainabilityMonths: number;
+  stableIncome: number;
+  totalSavings: number;
+  averageMonthlySavings: number;
 }
 
 export interface MonthlyData {
@@ -64,8 +75,8 @@ export interface BudgetData {
   incomes: IncomeSource[];
   expenses: ExpenseCategory[];
   transactions: Transaction[];
-  goals: FinancialGoal[];
   monthlyHistory: MonthlyData[];
+  monthlySavings: MonthlySavings[];
   settings: {
     currency: string;
     inflationRate: number;

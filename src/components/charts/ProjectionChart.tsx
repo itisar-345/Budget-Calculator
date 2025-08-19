@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -30,10 +30,17 @@ interface ProjectionChartProps {
 }
 
 export const ProjectionChart: React.FC<ProjectionChartProps> = ({ data }) => {
-  const calculator = new BudgetCalculator(data);
-  const projections = calculator.getInflationAdjustedProjection(12);
+  const [currentDate, setCurrentDate] = useState(new Date());
   
-  const chartData = {
+  useEffect(() => {
+    setCurrentDate(new Date());
+  }, []);
+  
+  const { chartData, options } = useMemo(() => {
+    const calculator = new BudgetCalculator(data, currentDate);
+    const projections = calculator.getInflationAdjustedProjection(12);
+    
+    const chartData = {
     labels: projections.map(p => new Date(p.month).toLocaleDateString('en-US', { month: 'short', year: '2-digit' })),
     datasets: [
       {
@@ -75,7 +82,7 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({ data }) => {
       },
       title: {
         display: true,
-        text: `${new Date().getFullYear()} Financial Projection (Jan-Dec)`,
+        text: `12-Month Financial Projection`,
         color: 'hsl(var(--foreground))',
         font: {
           size: 16,
@@ -93,7 +100,7 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({ data }) => {
         cornerRadius: 8,
         displayColors: true,
         callbacks: {
-          label: function(context: any) {
+          label: function(context: { dataset: { label: string }, parsed: { y: number } }) {
             return `${context.dataset.label}: ₹${context.parsed.y.toLocaleString()}`;
           }
         },
@@ -121,13 +128,16 @@ export const ProjectionChart: React.FC<ProjectionChartProps> = ({ data }) => {
         },
         ticks: {
           color: 'hsl(var(--muted-foreground))',
-          callback: function(value: any) {
-            return '₹' + value.toLocaleString();
+          callback: function(value: number | string) {
+            return '₹' + Number(value).toLocaleString();
           }
         },
       },
     },
-  };
+    };
+
+    return { chartData, options };
+  }, [data, currentDate]);
 
   return (
     <div className="h-80 w-full">

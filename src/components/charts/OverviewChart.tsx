@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -26,7 +26,8 @@ interface OverviewChartProps {
 }
 
 export const OverviewChart: React.FC<OverviewChartProps> = ({ analytics }) => {
-  const data = {
+  const { data, options } = useMemo(() => {
+    const data = {
     labels: ['Income', 'Expenses', 'Net Income'],
     datasets: [
       {
@@ -66,7 +67,7 @@ export const OverviewChart: React.FC<OverviewChartProps> = ({ analytics }) => {
       },
       tooltip: {
         callbacks: {
-          label: function(context: any) {
+          label: function(context: { parsed: { y: number } }) {
             return formatCurrency(context.parsed.y);
           }
         },
@@ -87,8 +88,8 @@ export const OverviewChart: React.FC<OverviewChartProps> = ({ analytics }) => {
         },
         ticks: {
           color: 'hsl(var(--muted-foreground))',
-          callback: function(value: any) {
-            return formatCurrency(value);
+          callback: function(value: number | string) {
+            return formatCurrency(Number(value));
           }
         },
       },
@@ -101,7 +102,10 @@ export const OverviewChart: React.FC<OverviewChartProps> = ({ analytics }) => {
         },
       },
     },
-  };
+    };
+
+    return { data, options };
+  }, [analytics]);
 
   return (
     <div className="h-64 w-full">

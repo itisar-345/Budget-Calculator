@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Calculator, IndianRupee, TrendingUp, Settings, Download, Upload, Trash2, PiggyBank } from 'lucide-react';
+import React from 'react';
+import { Calculator, IndianRupee, TrendingUp, Settings, Download, Trash2, PiggyBank } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { useToast } from '../hooks/use-toast';
@@ -25,10 +25,9 @@ const Index = () => {
     addSavings,
     deleteSavings,
     exportData,
-    importData,
   } = useBudgetData();
 
-  const [fileInputKey, setFileInputKey] = useState(0);
+
 
   if (loading) {
     return (
@@ -44,26 +43,7 @@ const Index = () => {
   const calculator = new BudgetCalculator(data);
   const analytics = calculator.getAnalytics();
 
-  const handleFileImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
 
-    try {
-      await importData(file);
-      toast({
-        title: "Import Successful",
-        description: "Your budget data has been imported successfully.",
-      });
-    } catch (error) {
-      toast({
-        title: "Import Failed",
-        description: "There was an error importing your data. Please check the file format.",
-        variant: "destructive",
-      });
-    }
-    
-    setFileInputKey(prev => prev + 1);
-  };
 
   const handleExport = () => {
     exportData();
@@ -99,20 +79,6 @@ const Index = () => {
                 <Download className="h-4 w-4" />
                 Export
               </Button>
-              
-              <div className="relative">
-                <input
-                  key={fileInputKey}
-                  type="file"
-                  accept=".json"
-                  onChange={handleFileImport}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                />
-                <Button variant="outline" size="sm" className="gap-2">
-                  <Upload className="h-4 w-4" />
-                  Import
-                </Button>
-              </div>
             </div>
           </div>
         </div>

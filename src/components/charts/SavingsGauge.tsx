@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { formatPercentage } from '../../lib/budgetCalculations';
 
 interface SavingsGaugeProps {
@@ -6,24 +6,26 @@ interface SavingsGaugeProps {
   target?: number;
 }
 
+const CIRCUMFERENCE = 2 * Math.PI * 45;
+
+const getColor = (rate: number) => {
+  if (rate < 0) return '#DC2626';
+  if (rate >= 20) return '#10B981';
+  if (rate >= 10) return '#F59E0B';
+  return '#EF4444';
+};
+
 export const SavingsGauge: React.FC<SavingsGaugeProps> = ({ 
   savingsRate, 
   target = 20 
 }) => {
-  const normalizedRate = Math.max(0, Math.min(100, Math.abs(savingsRate)));
-  const normalizedTarget = Math.max(0, Math.min(100, target));
-  
-  const circumference = 2 * Math.PI * 45;
-  const strokeDasharray = circumference;
-  const strokeDashoffset = circumference - (normalizedRate / 100) * circumference;
-  const targetOffset = circumference - (normalizedTarget / 100) * circumference;
-
-  const getColor = (rate: number) => {
-    if (rate < 0) return '#DC2626'; // Red for negative savings
-    if (rate >= 20) return '#10B981';
-    if (rate >= 10) return '#F59E0B';
-    return '#EF4444';
-  };
+  const { normalizedRate, normalizedTarget, strokeDashoffset, targetOffset } = useMemo(() => {
+    const normalizedRate = Math.max(0, Math.min(100, Math.abs(savingsRate)));
+    const normalizedTarget = Math.max(0, Math.min(100, target));
+    const strokeDashoffset = CIRCUMFERENCE - (normalizedRate / 100) * CIRCUMFERENCE;
+    const targetOffset = CIRCUMFERENCE - (normalizedTarget / 100) * CIRCUMFERENCE;
+    return { normalizedRate, normalizedTarget, strokeDashoffset, targetOffset };
+  }, [savingsRate, target]);
 
   return (
     <div className="relative w-40 h-40 mx-auto">
@@ -46,7 +48,7 @@ export const SavingsGauge: React.FC<SavingsGaugeProps> = ({
           fill="none"
           stroke="hsl(var(--muted-foreground))"
           strokeWidth="2"
-          strokeDasharray={`2 ${circumference - 2}`}
+          strokeDasharray={`2 ${CIRCUMFERENCE - 2}`}
           strokeDashoffset={targetOffset}
           opacity="0.5"
         />
@@ -59,7 +61,7 @@ export const SavingsGauge: React.FC<SavingsGaugeProps> = ({
           fill="none"
           stroke={getColor(savingsRate)}
           strokeWidth="8"
-          strokeDasharray={strokeDasharray}
+          strokeDasharray={CIRCUMFERENCE}
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
           className="transition-all duration-1000 ease-out"

@@ -2,9 +2,11 @@ import { BudgetData, BudgetAnalytics, IncomeSource, ExpenseCategory, MonthlyData
 
 export class BudgetCalculator {
   private data: BudgetData;
+  private currentDate: Date;
 
-  constructor(data: BudgetData) {
+  constructor(data: BudgetData, currentDate?: Date) {
     this.data = data;
+    this.currentDate = currentDate || new Date();
   }
 
   // Convert any frequency to monthly amount
@@ -20,7 +22,6 @@ export class BudgetCalculator {
 
   // Calculate total monthly income (considering dates)
   getTotalMonthlyIncome(): number {
-    const currentDate = new Date();
     return this.data.incomes
       .filter(income => {
         // Handle incomes without dates (legacy data)
@@ -28,7 +29,7 @@ export class BudgetCalculator {
         
         const startDate = new Date(income.startDate);
         const endDate = income.endDate ? new Date(income.endDate) : null;
-        const isActive = startDate <= currentDate && (!endDate || endDate >= currentDate);
+        const isActive = startDate <= this.currentDate && (!endDate || endDate >= this.currentDate);
         return isActive && (income.isRecurring || income.frequency !== 'one-time');
       })
       .reduce((total, income) => {
@@ -38,7 +39,6 @@ export class BudgetCalculator {
 
   // Calculate total monthly expenses (considering dates)
   getTotalMonthlyExpenses(): number {
-    const currentDate = new Date();
     return this.data.expenses
       .filter(expense => {
         // Handle expenses without dates (legacy data)
@@ -46,7 +46,7 @@ export class BudgetCalculator {
         
         const startDate = new Date(expense.startDate);
         const endDate = expense.endDate ? new Date(expense.endDate) : null;
-        return startDate <= currentDate && (!endDate || endDate >= currentDate);
+        return startDate <= this.currentDate && (!endDate || endDate >= this.currentDate);
       })
       .reduce((total, expense) => {
         return total + this.toMonthlyAmount(expense.budget, expense.frequency);
@@ -157,15 +157,26 @@ export class BudgetCalculator {
     return essentialExpenses > 0 ? totalSavings / essentialExpenses : 0;
   }
 
-  // Calculate date-dependent projections starting from January
+  // Calculate date-dependent projections starting from earliest income start date or current date
   getInflationAdjustedProjection(months: number): MonthlyData[] {
     const inflationRate = this.data.settings.inflationRate / 100 / 12;
     const projections: MonthlyData[] = [];
     let cumulativeSavings = 0;
-    const currentYear = new Date().getFullYear();
+    
+    // Find the earliest start date from income sources
+    const incomeStartDates = this.data.incomes
+      .filter(income => income.startDate)
+      .map(income => new Date(income.startDate!));
+    
+    const earliestIncomeDate = incomeStartDates.length > 0 
+      ? new Date(Math.min(...incomeStartDates.map(d => d.getTime())))
+      : new Date();
+    
+    // Start projections from the first day of the earliest income month
+    const startDate = new Date(earliestIncomeDate.getFullYear(), earliestIncomeDate.getMonth(), 1);
 
     for (let i = 0; i < months; i++) {
-      const projectionDate = new Date(currentYear, i, 1);
+      const projectionDate = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1);
       const inflationMultiplier = Math.pow(1 + inflationRate, i);
       
       // Calculate income for this specific month - only if active during this month

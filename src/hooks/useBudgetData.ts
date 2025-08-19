@@ -111,6 +111,22 @@ export const useBudgetData = () => {
     }));
   };
 
+  const updateTransaction = (id: string, updates: Partial<Transaction>) => {
+    setData(prev => ({
+      ...prev,
+      transactions: prev.transactions.map(transaction =>
+        transaction.id === id ? { ...transaction, ...updates } : transaction
+      ),
+    }));
+  };
+
+  const deleteTransaction = (id: string) => {
+    setData(prev => ({
+      ...prev,
+      transactions: prev.transactions.filter(transaction => transaction.id !== id),
+    }));
+  };
+
   const addSavings = (savings: Omit<MonthlySavings, 'id'>) => {
     const newSavings: MonthlySavings = {
       ...savings,
@@ -132,31 +148,33 @@ export const useBudgetData = () => {
 
 
   const exportData = () => {
-    const dataStr = JSON.stringify(data, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
+    const csvContent = [
+      ['Type', 'Name', 'Amount', 'Frequency', 'Start Date', 'End Date'],
+      ...data.incomes.map(income => [
+        'Income',
+        income.name,
+        income.amount.toString(),
+        income.frequency,
+        income.startDate || '',
+        income.endDate || ''
+      ]),
+      ...data.expenses.map(expense => [
+        'Expense',
+        expense.name,
+        expense.budget.toString(),
+        expense.frequency,
+        expense.startDate || '',
+        expense.endDate || ''
+      ])
+    ].map(row => row.join(',')).join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `budget-data-${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `budget-data-${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
     URL.revokeObjectURL(url);
-  };
-
-  const importData = (file: File) => {
-    return new Promise<void>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const importedData = JSON.parse(e.target?.result as string);
-          setData({ ...defaultBudgetData, ...importedData });
-          resolve();
-        } catch (error) {
-          reject(error);
-        }
-      };
-      reader.onerror = () => reject(reader.error);
-      reader.readAsText(file);
-    });
   };
 
   const clearAllData = () => {
@@ -174,10 +192,11 @@ export const useBudgetData = () => {
     updateExpense,
     deleteExpense,
     addTransaction,
+    updateTransaction,
+    deleteTransaction,
     addSavings,
     deleteSavings,
     exportData,
-    importData,
     clearAllData,
   };
 };

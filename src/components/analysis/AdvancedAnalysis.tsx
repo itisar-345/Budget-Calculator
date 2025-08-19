@@ -19,6 +19,18 @@ export const AdvancedAnalysis: React.FC<AdvancedAnalysisProps> = ({ analytics, d
     return 'destructive';
   };
 
+  const getVolatilityColor = (volatility: number) => {
+    if (volatility < 20) return 'success';
+    if (volatility < 40) return 'warning';
+    return 'destructive';
+  };
+
+  const getSustainabilityColor = (months: number) => {
+    if (months >= 6) return 'success';
+    if (months >= 3) return 'warning';
+    return 'destructive';
+  };
+
   const getFinancialHealthScore = () => {
     let score = 0;
     
@@ -123,7 +135,7 @@ export const AdvancedAnalysis: React.FC<AdvancedAnalysisProps> = ({ analytics, d
           value={formatPercentage(analytics.expenseVolatilityIndex)}
           subtitle="Spending pattern stability"
           icon={TrendingDown}
-          color={analytics.expenseVolatilityIndex < 20 ? 'success' : analytics.expenseVolatilityIndex < 40 ? 'warning' : 'destructive'}
+          color={getVolatilityColor(analytics.expenseVolatilityIndex)}
         />
         
         <MetricCard
@@ -131,7 +143,7 @@ export const AdvancedAnalysis: React.FC<AdvancedAnalysisProps> = ({ analytics, d
           value={`${analytics.sustainabilityMonths.toFixed(1)} months`}
           subtitle="How long savings would last"
           icon={Clock}
-          color={analytics.sustainabilityMonths >= 6 ? 'success' : analytics.sustainabilityMonths >= 3 ? 'warning' : 'destructive'}
+          color={getSustainabilityColor(analytics.sustainabilityMonths)}
         />
         
 

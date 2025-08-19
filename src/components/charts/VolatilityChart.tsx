@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -28,8 +28,9 @@ interface VolatilityChartProps {
 }
 
 export const VolatilityChart: React.FC<VolatilityChartProps> = ({ data }) => {
-  const calculator = new BudgetCalculator(data);
-  const volatilityIndex = calculator.getExpenseVolatilityIndex();
+  const { chartData, options } = useMemo(() => {
+    const calculator = new BudgetCalculator(data);
+    const volatilityIndex = calculator.getExpenseVolatilityIndex();
   
   const chartData = {
     datasets: [
@@ -74,10 +75,10 @@ export const VolatilityChart: React.FC<VolatilityChartProps> = ({ data }) => {
         cornerRadius: 8,
         displayColors: true,
         callbacks: {
-          title: function(context: any) {
+          title: function(context: Array<{ raw: { label: string } }>) {
             return context[0].raw.label;
           },
-          label: function(context: any) {
+          label: function(context: { parsed: { x: number, y: number } }) {
             return [
               `Average Monthly: ₹${context.parsed.x.toLocaleString()}`,
               `Volatility Index: ${context.parsed.y.toFixed(1)}%`
@@ -100,8 +101,8 @@ export const VolatilityChart: React.FC<VolatilityChartProps> = ({ data }) => {
         },
         ticks: {
           color: 'hsl(var(--muted-foreground))',
-          callback: function(value: any) {
-            return '₹' + value.toLocaleString();
+          callback: function(value: number | string) {
+            return '₹' + Number(value).toLocaleString();
           }
         },
       },
@@ -116,13 +117,16 @@ export const VolatilityChart: React.FC<VolatilityChartProps> = ({ data }) => {
         },
         ticks: {
           color: 'hsl(var(--muted-foreground))',
-          callback: function(value: any) {
-            return value.toFixed(1) + '%';
+          callback: function(value: number | string) {
+            return Number(value).toFixed(1) + '%';
           }
         },
       },
     },
-  };
+    };
+
+    return { chartData, options };
+  }, [data]);
 
   return (
     <div className="h-80 w-full">

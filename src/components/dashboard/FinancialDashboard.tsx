@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { IndianRupee, TrendingUp, TrendingDown, Target, Shield, Clock } from 'lucide-react';
 import { BudgetAnalytics } from '../../types/budget';
 import { formatCurrency, formatPercentage } from '../../lib/budgetCalculations';
@@ -11,6 +11,12 @@ interface FinancialDashboardProps {
 }
 
 export const FinancialDashboard: React.FC<FinancialDashboardProps> = ({ analytics }) => {
+  const incomeBuffer = useMemo(() => {
+    return analytics.totalIncome > 0 
+      ? ((analytics.totalIncome - analytics.breakEvenPoint) / analytics.totalIncome * 100).toFixed(1)
+      : '0.0';
+  }, [analytics.totalIncome, analytics.breakEvenPoint]);
+
   const getSavingsColor = (rate: number) => {
     if (rate >= 20) return 'success';
     if (rate >= 10) return 'warning';
@@ -118,7 +124,7 @@ export const FinancialDashboard: React.FC<FinancialDashboardProps> = ({ analytic
           
           <div className="text-center p-4 bg-muted/50 rounded-lg">
             <div className="text-2xl font-bold text-accent">
-              {analytics.totalIncome > 0 ? ((analytics.totalIncome - analytics.breakEvenPoint) / analytics.totalIncome * 100).toFixed(1) : '0.0'}%
+              {incomeBuffer}%
             </div>
             <div className="text-sm text-muted-foreground">
               Income Buffer

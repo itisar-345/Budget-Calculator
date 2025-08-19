@@ -1,14 +1,29 @@
 {
-  "name": "vite_react_shadcn_ts",
+  "name": "budget-calculator-pro",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Professional budget calculator with advanced financial analysis, expense volatility tracking, cash flow projections, and comprehensive financial health insights.",
+  "keywords": ["budget", "calculator", "financial", "analysis", "expense", "tracking", "savings", "react", "typescript"],
+  "author": "Budget Calculator Pro",
+  "license": "MIT",
+  "homepage": "https://github.com/username/Budget-Calculator",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/username/Budget-Calculator.git"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "lint:fix": "eslint . --fix",
+    "preview": "vite preview",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "start": "npm run preview",
+    "test:build": "node scripts/build-test.js",
+    "deploy:check": "npm run test:build && npm run preview"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

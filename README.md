@@ -2,13 +2,17 @@
 
 A professional budget calculator with advanced financial analysis, expense volatility tracking, cash flow projections, and comprehensive financial health insights.
 
+## Live Demo
+
+**[Access the Live Demo](https://itisar-345.github.io/Budget-Calculator/)**
+
 ## ✨ Features
 
 ### 📊 Core Functionality
 - **Income Management**: Track multiple income sources with different frequencies
 - **Expense Tracking**: Categorize expenses (fixed, variable, occasional) with color coding
 - **Savings Monitoring**: Record and analyze monthly savings patterns
-- **Data Import/Export**: Backup and restore your financial data
+- **Data Export**: Export your financial data to Excel/CSV format
 
 ### 📈 Advanced Analytics
 - **Financial Health Dashboard**: Quick overview of your financial status
@@ -32,7 +36,7 @@ A professional budget calculator with advanced financial analysis, expense volat
 
 ```bash
 # Clone the repository
-git clone https://github.com/username/Budget-Calculator.git
+git clone https://github.com/itisar-345/Budget-Calculator.git
 
 # Navigate to project directory
 cd Budget-Calculator
@@ -119,7 +123,7 @@ The app includes sophisticated financial calculations:
 
 - **Local Storage**: All data is stored locally in your browser
 - **No Server**: No data is sent to external servers
-- **Export/Import**: Full control over your financial data
+- **Export Only**: Export your financial data for backup
 - **Privacy First**: Your financial information stays private
 
 ## 🌐 Deployment
@@ -129,7 +133,7 @@ The project is configured for GitHub Pages deployment:
 
 1. Push to main branch
 2. GitHub Actions automatically builds and deploys
-3. Access at `https://username.github.io/Budget-Calculator/`
+3. Access at `https://itisar-345.github.io/Budget-Calculator/`
 
 ### Manual Deployment
 
@@ -163,3 +167,20 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Made with ❤️ for better financial management**
 
+5.  **Build for production:**
+    To create a production build in the `dist/` folder:
+    ```sh
+    npm run build
+    ```
+
+## Usage
+
+1.  **Navigate the App:** Use the tabs at the top to switch between the `Dashboard`, `Income`, `Expenses`, `Savings`, and `Analysis` sections.
+2.  **Add Your Data:**
+    *   Go to the **Income** tab to add your sources of income.
+    *   Go to the **Expenses** tab to add your spending categories.
+    *   Go to the **Savings** tab to log your total savings for previous months. This is crucial for calculating your emergency fund and other key metrics.
+3.  **Analyze Your Finances:**
+    *   The **Dashboard** provides a high-level summary.
+    *   The **Analysis** tab offers in-depth metrics, charts, and actionable recommendations to improve your financial standing.
+4.  **Manage Data:** Use the **Export** and **Import** buttons in the header to save and load your financial data.

@@ -165,6 +165,14 @@ export const useBudgetData = () => {
         expense.frequency,
         expense.startDate || '',
         expense.endDate || ''
+      ]),
+      ...data.monthlySavings.map(savings => [
+        'Savings',
+        `${savings.month} Savings`,
+        savings.amount.toString(),
+        'monthly',
+        savings.month + '-01',
+        ''
       ])
     ].map(row => row.join(',')).join('\n');
     

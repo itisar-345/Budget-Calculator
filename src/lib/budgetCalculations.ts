@@ -261,8 +261,9 @@ export class BudgetCalculator {
   getAnalytics(): BudgetAnalytics {
     const totalIncome = this.getTotalMonthlyIncome();
     const totalExpenses = this.getTotalMonthlyExpenses();
+    const avgMonthlySavings = this.getAverageMonthlySavings();
     const netIncome = totalIncome - totalExpenses;
-    const savingsRate = totalIncome > 0 ? (netIncome / totalIncome) * 100 : 0;
+    const savingsRate = totalIncome > 0 ? ((netIncome + avgMonthlySavings) / totalIncome) * 100 : 0;
     const volatilityValues = Object.values(this.getExpenseVolatilityIndex());
     const avgVolatility = volatilityValues.length > 0 ? volatilityValues.reduce((sum, val) => sum + val, 0) / volatilityValues.length : 0;
 

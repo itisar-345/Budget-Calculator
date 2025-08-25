@@ -66,6 +66,9 @@ const Index = () => {
               <div>
                 <h1 className="text-xl font-bold text-foreground">Budget Calculator Pro</h1>
                 <p className="text-sm text-muted-foreground">Advanced Financial Analysis</p>
+                <p className="max-w-xl mx-auto text-muted-foreground mt-1">
+                  Budget Calculator Pro helps you plan, track, and manage your finances with advanced budgeting tools.
+                </p>
               </div>
             </div>
             
